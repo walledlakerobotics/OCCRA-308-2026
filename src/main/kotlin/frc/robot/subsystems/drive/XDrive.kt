@@ -24,7 +24,7 @@ class XDrive {
 
     constructor() {
 
-        // TODO: configure the Neos and PID tune them.
+        // TODO: configure the Neos and PID tune them, also config trapezoidal profiling using MAXMotion (:3).
 
         m_frontLeftNeo.configure(m_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
         m_frontRightNeo.configure(m_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
