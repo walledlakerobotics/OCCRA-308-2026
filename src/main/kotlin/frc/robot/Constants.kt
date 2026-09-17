@@ -10,6 +10,6 @@ class Constants {
         public final val kBackLeftMotorCANID = 2;
         public final val kBackRightMotorCANID = 3;
 
-        public val kDriveNeoConfig = SparkMaxConfig().closedLoop.maxMotion
+
     }
 }
