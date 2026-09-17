@@ -1,5 +1,8 @@
 package frc.robot
 
+import com.pathplanner.lib.auto.AutoBuilder
+import com.pathplanner.lib.path.PathPlannerPath
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.robot.constants.kCoDriverController
@@ -8,7 +11,7 @@ import frc.robot.subsystems.drivetrain.XDrive
 
 class RobotContainer {
 
-    private val m_driveTrain = XDrive();
+    private val mPathChooser = AutoBuilder.buildAutoChooser()
 
     init {
         kDriverController(this)
@@ -16,5 +19,7 @@ class RobotContainer {
     }
 
     val autonomousCommand: Command
-        get() = Commands.print("No autonomous command configured")
+        get() {
+           return mPathChooser.selected
+        }
 }

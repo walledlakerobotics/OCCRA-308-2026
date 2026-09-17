@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType
 import com.revrobotics.spark.SparkMax
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units
+import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.kBackLeftMotorCANID
 import frc.robot.constants.kBackRightMotorCANID
@@ -14,6 +15,7 @@ import frc.robot.constants.kDistanceFromCenter
 import frc.robot.constants.kFrontLeftMotorCANID
 import frc.robot.constants.kFrontRightMotorCANID
 import frc.robot.constants.kSparkMaxConfig
+import java.util.function.DoubleSupplier
 
 class XDrive : SubsystemBase() {
 
@@ -57,5 +59,15 @@ class XDrive : SubsystemBase() {
      * */
     public fun stop() {
         drive(ChassisSpeeds())
+    }
+
+    public fun drive(speedX: DoubleSupplier, speedY: DoubleSupplier, rotation: DoubleSupplier): Command {
+        return runOnce {
+            // calculate thing position need to travel
+        }.andThen({
+            run {
+                drive(ChassisSpeeds(speedX.asDouble, speedY.asDouble, rotation.asDouble))
+            }
+        })
     }
 }
