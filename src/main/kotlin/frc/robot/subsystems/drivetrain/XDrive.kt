@@ -54,20 +54,15 @@ class XDrive : SubsystemBase() {
         backRightNeo.closedLoopController.setSetpoint(backRightVelocity, SparkBase.ControlType.kVelocity)
     }
 
+    public fun drive(velocityX: DoubleSupplier, velocityY: DoubleSupplier, rotation: DoubleSupplier) =
+        drive(ChassisSpeeds(velocityX.asDouble, velocityY.asDouble, rotation.asDouble))
+
+
+
     /**
      * This sets the velocity to zero.
      * */
     public fun stop() {
         drive(ChassisSpeeds())
-    }
-
-    public fun drive(speedX: DoubleSupplier, speedY: DoubleSupplier, rotation: DoubleSupplier): Command {
-        return runOnce {
-            // calculate thing position need to travel
-        }.andThen({
-            run {
-                drive(ChassisSpeeds(speedX.asDouble, speedY.asDouble, rotation.asDouble))
-            }
-        })
     }
 }

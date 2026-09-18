@@ -2,77 +2,65 @@ package frc.robot.subsystems.drivetrain
 
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.units.Units
-import edu.wpi.first.wpilibj.ADIS16470_IMU
-import edu.wpi.first.wpilibj.ADXRS450_Gyro
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.Encoder
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.robot.constants.kChannelAForwardLeft
-import frc.robot.constants.kChannelAForwardRight
+import frc.robot.constants.kChannelAForward
 import frc.robot.constants.kChannelAStrafe
-import frc.robot.constants.kChannelBForwardLeft
+import frc.robot.constants.kChannelBForward
 import frc.robot.constants.kChannelBStrafe
+import frc.robot.constants.kDistanceFromCenter
 import frc.robot.constants.kWheelDiameter
-import java.util.function.Supplier
 import kotlin.math.PI
+import kotlin.math.sqrt
 
 class DriveOdometry : SubsystemBase() {
 
-    // TODO: this doesn't factor in the rotation of the robot.
-
-    private val mForwardLeftEncoder = Encoder(kChannelAForwardLeft, kChannelBForwardLeft)
-    private val mForwardRightEncoder = Encoder(kChannelAForwardRight, kChannelBForwardLeft)
+    private val mForwardEncoder = Encoder(kChannelAForward, kChannelBForward)
     private val mStrafeEncoder = Encoder(kChannelAStrafe, kChannelBStrafe)
-
-
-    private val mGyro = ADXRS450_Gyro()
+//    private val mGyro = AHRS()
 
     init {
-        val circumference = kWheelDiameter.times(PI).`in`(Units.Meter)
+        val distancePerPulse = kWheelDiameter.times(PI).`in`(Units.Meters)
 
-        mForwardLeftEncoder.distancePerPulse = circumference
-        mForwardRightEncoder.distancePerPulse = circumference
-        mStrafeEncoder.distancePerPulse = circumference
-
-        // shaffleboard
-        Shuffleboard.getTab("Odometry")
+        mForwardEncoder.distancePerPulse = distancePerPulse
+        mStrafeEncoder.distancePerPulse = distancePerPulse
     }
 
-    public fun resetOdometry() {
-        mForwardLeftEncoder.reset()
-        mForwardRightEncoder.reset()
-        mStrafeEncoder.reset()
-        mGyro.reset()
-    }
-
-    public val forwardLeftVector: Translation2d
+    val deadMotorsDistance: Distance
         get() {
-            val x = mForwardLeftEncoder.distance
+            /*
+            *                       |\
+            *                       | \  distance multiplied to the sqrt(2.0)
+            * distance from center  |  \
+            *                       |   \
+            *                       ----- same distance
+            * */
+            val distance = kDistanceFromCenter.times(sqrt(2.0))
+
+            return distance
+        }
+
+    val forwardTranslation: Translation2d
+        get() {
+            val x = mForwardEncoder.distance
+
+            return Translation2d()
+        }
+
+    val strafeTranslation: Translation2d
+        get() {
             val y = mStrafeEncoder.distance
 
-
-            // this calculates the distance traveled to make a right triangle to find the vector of the distance traveled.
-
-            return Translation2d(x, y)
+            return Translation2d()
         }
 
-    public val forwardRightVector: Translation2d
+    val pose: Pose2d
         get() {
-            val x = mForwardRightEncoder.distance
-            val y = mStrafeEncoder.distance
 
-            return Translation2d(x, y)
+            return Pose2d()
         }
 
-    public val gyroRotation: Rotation2d
-        get() {
-            val distanceTraveled = mStrafeEncoder.distance
-
-
-            return Rotation2d()
-
-        }
 }
