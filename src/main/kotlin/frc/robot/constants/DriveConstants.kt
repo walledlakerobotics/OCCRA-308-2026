@@ -6,8 +6,6 @@ import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.LinearVelocity
 
-// TODO: configure the Neos and PID tune them, also config trapezoidal profiling using MAXMotion (:3).
-
 val kDistanceFromCenter: Distance = Distance.ofBaseUnits(0.0, Units.Meters)
 
 const val kFrontLeftMotorCANID = 0

@@ -16,6 +16,7 @@ import frc.robot.constants.kFrontLeftMotorCANID
 import frc.robot.constants.kFrontRightMotorCANID
 import frc.robot.constants.kSparkMaxConfig
 import java.util.function.DoubleSupplier
+import kotlin.math.sqrt
 
 class XDrive : SubsystemBase() {
 
@@ -40,23 +41,22 @@ class XDrive : SubsystemBase() {
         val rotation = speeds.omegaRadiansPerSecond * kDistanceFromCenter.`in`(Units.Meter)
 
         // front velocity
-        val frontLeftVelocity = (speeds.vxMetersPerSecond + speeds.vyMetersPerSecond) * 0.5 + rotation
+        val frontLeftVelocity = (speeds.vxMetersPerSecond + speeds.vyMetersPerSecond) * sqrt(2.0) + rotation
         frontLeftNeo.closedLoopController.setSetpoint(frontLeftVelocity, SparkBase.ControlType.kVelocity)
 
-        val frontRightVelocity = (speeds.vxMetersPerSecond - speeds.vyMetersPerSecond) * 0.5 + rotation;
+        val frontRightVelocity = (speeds.vxMetersPerSecond - speeds.vyMetersPerSecond) * sqrt(2.0) + rotation;
         frontRightNeo.closedLoopController.setSetpoint(frontRightVelocity, SparkBase.ControlType.kVelocity)
 
         // back velocity
-        val backLeftVelocity = (-speeds.vxMetersPerSecond - speeds.vyMetersPerSecond) * 0.5 - rotation
+        val backLeftVelocity = (-speeds.vxMetersPerSecond - speeds.vyMetersPerSecond) * sqrt(2.0) - rotation
         backLeftNeo.closedLoopController.setSetpoint(backLeftVelocity, SparkBase.ControlType.kVelocity)
 
-        val backRightVelocity = (-speeds.vxMetersPerSecond + speeds.vyMetersPerSecond) * 0.5 - rotation;
+        val backRightVelocity = (-speeds.vxMetersPerSecond + speeds.vyMetersPerSecond) * sqrt(2.0) - rotation;
         backRightNeo.closedLoopController.setSetpoint(backRightVelocity, SparkBase.ControlType.kVelocity)
     }
 
     public fun drive(velocityX: DoubleSupplier, velocityY: DoubleSupplier, rotation: DoubleSupplier) =
         drive(ChassisSpeeds(velocityX.asDouble, velocityY.asDouble, rotation.asDouble))
-
 
 
     /**

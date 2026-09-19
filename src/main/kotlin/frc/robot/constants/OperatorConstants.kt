@@ -2,6 +2,8 @@ package frc.robot.constants
 
 import edu.wpi.first.wpilibj.XboxController
 import frc.robot.RobotContainer
+import java.util.function.DoubleSupplier
+import kotlin.math.atan2
 
 /**
  * Creates Driver Controller
@@ -11,7 +13,6 @@ fun kDriverController(container: RobotContainer): Lazy<XboxController> =
     lazy {
         val controller = XboxController(0)
 
-        // config here
 
         controller
     }
@@ -28,4 +29,3 @@ fun kCoDriverController(container: RobotContainer): Lazy<XboxController> =
 
         controller
     }
-
