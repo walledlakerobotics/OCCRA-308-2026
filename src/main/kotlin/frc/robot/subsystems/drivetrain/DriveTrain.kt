@@ -1,13 +1,14 @@
 package frc.robot.subsystems.drivetrain
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.kDataBufferPort
 import java.util.function.DoubleSupplier
 
 class DriveTrain : SubsystemBase() {
-    private val mXDrive = XDrive()
     private val mDriveOdometry = DriveOdometry(kDataBufferPort)
+    private val mMecanumDrive = MecanumDrive()
 
 
     init {
@@ -16,7 +17,7 @@ class DriveTrain : SubsystemBase() {
     }
 
     fun drive(speedX: DoubleSupplier, speedY: DoubleSupplier, rotation: DoubleSupplier) {
-        mXDrive.drive(speedX, speedY, rotation)
+        mMecanumDrive.drive(ChassisSpeeds(speedX.asDouble, speedY.asDouble, rotation.asDouble))
     }
 }
 
