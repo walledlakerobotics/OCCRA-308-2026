@@ -30,14 +30,16 @@ class MecanumDrive : SubsystemBase() {
         mBackRightNeo.configure(kSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
     }
 
+    // TODO: angle calculations are probs wrong.
+
     /**
-     *  Calculates each motors velocity vectors, and sets the set point for the output of the control loop. 
+     *  Calculates each motors velocity vectors, and sets the set point for the output of the control loop.
      *
      * @param speeds the velocity vector that is measured in m/s or (Meters per Second).
      * */
     public fun drive(speeds: ChassisSpeeds) {
         // factors in the angle of the vector, and the rotation of the vector
-        val rotationFactor = kDistanceFromCenter.`in`(Units.Meter) * (speeds.omegaRadiansPerSecond + atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond))
+        val rotationFactor = (kDistanceFromCenter.`in`(Units.Meter) * 0.5) * (speeds.omegaRadiansPerSecond + atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond))
 
         val frontLeftVelocity = speeds.vxMetersPerSecond + speeds.vyMetersPerSecond - rotationFactor
         mFrontLeftNeo.closedLoopController.setSetpoint(frontLeftVelocity, SparkBase.ControlType.kVelocity)
@@ -50,5 +52,14 @@ class MecanumDrive : SubsystemBase() {
 
         val backRightVelocity = speeds.vxMetersPerSecond + speeds.vyMetersPerSecond - rotationFactor
         mBackRightNeo.closedLoopController.setSetpoint(backRightVelocity, SparkBase.ControlType.kVelocity)
+    }
+
+    /**
+     *
+     * stops the drive
+     *
+     * */
+    public fun stop() {
+        drive(ChassisSpeeds())
     }
 }
