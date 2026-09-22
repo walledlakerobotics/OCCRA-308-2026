@@ -40,7 +40,14 @@ class MecanumDrive : SubsystemBase() {
     }
 
     public fun drive(speeds: ChassisSpeeds) {
-        kinematics.toWheelSpeeds(speeds)
+        // gets kinematic velocity's
+        val v = kinematics.toWheelSpeeds(speeds)
+
+        // sets the set point.
+        mFrontLeftNeo.closedLoopController.setSetpoint(v.frontLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
+        mFrontRightNeo.closedLoopController.setSetpoint(v.frontRightMetersPerSecond, SparkBase.ControlType.kVelocity)
+        mBackRightNeo.closedLoopController.setSetpoint(v.rearLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
+        mBackLeftNeo.closedLoopController.setSetpoint(v.rearLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
     }
 
 //    /**
