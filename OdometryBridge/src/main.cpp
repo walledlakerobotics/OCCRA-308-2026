@@ -1,19 +1,20 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <pico/mutex.h>
 #include <pico.h>
 #include <goBILDA_Pinpoint.h>
 #include <Serial.h>
 
 goBILDA::Pinpoint pinpoint = goBILDA::Pinpoint();
-goBILDA::Pose2D position = goBILDA::Pose2D();
-goBILDA::Pose2D velocity = goBILDA::Pose2D();
-
-float yaw_rotation = 0.0;
+ArduinoJson::JsonDocument pinpoint_data_doc = ArduinoJson::JsonDocument();
 
 mutex_t data_mtx;
 
 void setup()
 {
+  // todo what port
+  Serial.begin(0);
+
   // configurating pinpoint
   pinpoint.begin();
   pinpoint.setEncoderDirections(goBILDA::EncoderDirection::Forward, goBILDA::EncoderDirection::Forward);
@@ -32,7 +33,7 @@ void loop()
 
   mutex_enter_blocking(&data_mtx);
 
-  // sending data over ic2
+  // write json
 
   mutex_exit(&data_mtx);
 }
@@ -44,7 +45,17 @@ void loop1()
 
   mutex_enter_blocking(&data_mtx);
 
-  position = pinpoint.getPosition();
+  pinpoint_data_doc = get_json_doc();
+
+  mutex_exit(&data_mtx);
+}
+
+// todo needs to convert to string.
+ArduinoJson::JsonDocument get_json_doc()
+{
+  ArduinoJson::JsonDocument doc = ArduinoJson::JsonDocument();
+  goBILDA::Pose2D position = pinpoint.getPosition();
+  goBILDA::Pose2D velocity = goBILDA::Pose2D();
 
   // this isn't my fault.
   velocity.x = pinpoint.getVelocityX();
@@ -52,14 +63,14 @@ void loop1()
   velocity.heading = pinpoint.getVelocityHeading();
 
   // rotation
-  yaw_rotation = pinpoint.getYawScalar();
+  float yaw_rotation = pinpoint.getYawScalar();
 
-  mutex_exit(&data_mtx);
-}
+  doc["x"] = position.x;
+  doc["y"] = position.y;
+  doc["rotation"] = yaw_rotation;
 
-// this takes the data and converts into a hashmap, and coverting into a json dataset.
-String get_serialized_json()
-{
+  doc["velX"] = velocity.x;
+  doc["velY"] = velocity.y;
 
-  return "";
+  return doc;
 }
