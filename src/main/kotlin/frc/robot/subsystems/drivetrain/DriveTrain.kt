@@ -20,7 +20,9 @@ class DriveTrain : SubsystemBase() {
         mMecanumDrive.drive(ChassisSpeeds(speedX.asDouble, speedY.asDouble, rotation.asDouble))
     }
 
-
+    fun stop() {
+        mMecanumDrive.stop()
+    }
 }
 
 

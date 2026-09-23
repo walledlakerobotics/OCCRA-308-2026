@@ -11,10 +11,14 @@ import edu.wpi.first.math.kinematics.MecanumDriveKinematics
 import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.kBackLeftMotorCANID
+import frc.robot.constants.kBackLeftNeoTranslation
 import frc.robot.constants.kBackRightMotorCANID
+import frc.robot.constants.kBackRightNeoTranslation
 import frc.robot.constants.kDistanceFromCenter
 import frc.robot.constants.kFrontLeftMotorCANID
+import frc.robot.constants.kFrontLeftNeoTranslation
 import frc.robot.constants.kFrontRightMotorCANID
+import frc.robot.constants.kFrontRightNeoTranslation
 import frc.robot.constants.kSparkMaxConfig
 import kotlin.math.atan2
 
@@ -25,12 +29,7 @@ class MecanumDrive : SubsystemBase() {
     private val mBackLeftNeo = SparkMax(kBackLeftMotorCANID, SparkLowLevel.MotorType.kBrushless)
     private val mBackRightNeo = SparkMax(kBackRightMotorCANID, SparkLowLevel.MotorType.kBrushless)
 
-    private val mFrontLeftNeoTranslation = Translation2d();
-    private val mFrontRightNeoTranslation = Translation2d();
-    private val mBackLeftNeoTranslation = Translation2d();
-    private val mBackRightNeoTranslation = Translation2d();
-
-    private val kinematics = MecanumDriveKinematics(mFrontLeftNeoTranslation, mFrontRightNeoTranslation, mBackLeftNeoTranslation, mBackRightNeoTranslation)
+    private val kinematics = MecanumDriveKinematics(kFrontLeftNeoTranslation, kFrontRightNeoTranslation, kBackLeftNeoTranslation, kBackRightNeoTranslation)
 
     init {
         mFrontLeftNeo.configure(kSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
@@ -39,7 +38,7 @@ class MecanumDrive : SubsystemBase() {
         mBackRightNeo.configure(kSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
     }
 
-    public fun drive(speeds: ChassisSpeeds) {
+    fun drive(speeds: ChassisSpeeds) {
         // gets kinematic velocity's
         val v = kinematics.toWheelSpeeds(speeds)
 

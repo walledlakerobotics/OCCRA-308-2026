@@ -10,9 +10,6 @@ import kotlin.math.atan2
 
 const val kDeadBandThreshold = 0.0
 
-
-//
-
 /**
  * Creates Driver Controller
  * @param container this is the robot container.
@@ -20,7 +17,6 @@ const val kDeadBandThreshold = 0.0
 fun kDriverController(container: RobotContainer): Lazy<XboxController> =
     lazy {
         val controller = XboxController(0)
-
         val axisLoop = EventLoop()
 
         // probs better way.
