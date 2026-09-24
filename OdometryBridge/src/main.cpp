@@ -1,14 +1,24 @@
 #include <Arduino.h>
-#include <ArduinoJson.h>
+// #include <ArduinoJson.h>
 #include <pico/mutex.h>
 #include <pico.h>
 #include <goBILDA_Pinpoint.h>
 #include <Serial.h>
 
-goBILDA::Pinpoint pinpoint = goBILDA::Pinpoint();
-ArduinoJson::JsonDocument pinpoint_data_doc = ArduinoJson::JsonDocument();
+// I want perfect memory management so it can send it fast.
 
-mutex_t data_mtx;
+goBILDA::Pinpoint pinpoint = goBILDA::Pinpoint();
+
+float positions_data[5] = {
+    0.0, // x
+    0.0, // y
+    0.0, // rotation
+
+    0.0, // velocity x
+    0.0, // velocity y
+};
+
+mutex_t data_mtx = mutex();
 
 void setup()
 {
@@ -33,7 +43,13 @@ void loop()
 
   mutex_enter_blocking(&data_mtx);
 
-  // write json
+  // points to the positions allocated in the heap,so memory doesn't need to be copied.
+  const u_int8_t *bytes_ptr = (u_int8_t *)positions_data;
+
+  // needs todo smth Im done for now.
+
+  // Serial.write(bytes_ptr);
+  // Serial.flush();
 
   mutex_exit(&data_mtx);
 }
@@ -45,32 +61,17 @@ void loop1()
 
   mutex_enter_blocking(&data_mtx);
 
-  pinpoint_data_doc = get_json_doc();
+  goBILDA::Pose2D position = pinpoint.getPosition();
+
+  // I know this is a horrible way of handling reading, but directly sending information fast with stringfiying this is the only way I could think of.
+  positions_data[0] = position.x;
+  positions_data[1] = position.y;
+  positions_data[2] = pinpoint.getYawScalar();
+
+  positions_data[3] = pinpoint.getVelocityX();
+  positions_data[4] = pinpoint.getVelocityY();
 
   mutex_exit(&data_mtx);
 }
 
 // todo needs to convert to string.
-ArduinoJson::JsonDocument get_json_doc()
-{
-  ArduinoJson::JsonDocument doc = ArduinoJson::JsonDocument();
-  goBILDA::Pose2D position = pinpoint.getPosition();
-  goBILDA::Pose2D velocity = goBILDA::Pose2D();
-
-  // this isn't my fault.
-  velocity.x = pinpoint.getVelocityX();
-  velocity.y = pinpoint.getVelocityY();
-  velocity.heading = pinpoint.getVelocityHeading();
-
-  // rotation
-  float yaw_rotation = pinpoint.getYawScalar();
-
-  doc["x"] = position.x;
-  doc["y"] = position.y;
-  doc["rotation"] = yaw_rotation;
-
-  doc["velX"] = velocity.x;
-  doc["velY"] = velocity.y;
-
-  return doc;
-}
