@@ -48,10 +48,7 @@ void loop()
 
   // needs todo smth Im done for now.
 
-  // Serial.write(bytes_ptr);
-  // Serial.flush();
-
-  mutex_exit(&data_mtx);
+    mutex_exit(&data_mtx);
 }
 
 // reading
@@ -66,7 +63,7 @@ void loop1()
   // I know this is a horrible way of handling reading, but directly sending information fast with stringfiying this is the only way I could think of.
   positions_data[0] = position.x;
   positions_data[1] = position.y;
-  positions_data[2] = pinpoint.getYawScalar();
+  positions_data[2] = pinpoint.getNormalizedHeading();
 
   positions_data[3] = pinpoint.getVelocityX();
   positions_data[4] = pinpoint.getVelocityY();
