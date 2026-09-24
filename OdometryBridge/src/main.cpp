@@ -22,8 +22,8 @@ mutex_t data_mtx = mutex();
 
 void setup()
 {
-  // todo what port
-  Serial.begin(0);
+  // port
+  Serial.begin(115200);
 
   // configurating pinpoint
   pinpoint.begin();
