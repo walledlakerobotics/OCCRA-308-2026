@@ -1,5 +1,4 @@
 #include <Arduino.h>
-// #include <ArduinoJson.h>
 #include <pico/mutex.h>
 #include <pico.h>
 #include <goBILDA_Pinpoint.h>
@@ -9,16 +8,9 @@
 
 goBILDA::Pinpoint pinpoint = goBILDA::Pinpoint();
 
-float positions_data[5] = {
-    0.0, // x
-    0.0, // y
-    0.0, // rotation
-
-    0.0, // velocity x
-    0.0, // velocity y
-};
-
-mutex_t data_mtx = mutex();
+mutex_t pinpoint_mtx = mutex();
+mutex_t writing_serial_mtx = mutex();
+mutex_t reading_serial_mtx = mutex();
 
 void setup()
 {
@@ -33,42 +25,54 @@ void setup()
   pinpoint.setEncoderResolution(goBILDA::EncoderResolution::goBILDA_4_BAR_POD);
 
   // inits thread safe device, mutex look it up fool.
-  mutex_init(&data_mtx);
-}
+  mutex_init(&writing_serial_mtx);
 
-// writing
-void loop()
-{
-  sleep_ms(1);
+  mutex_init(&reading_serial_mtx);
 
-  mutex_enter_blocking(&data_mtx);
-
-  // points to the positions allocated in the heap,so memory doesn't need to be copied.
-  const u_int8_t *bytes_ptr = (u_int8_t *)positions_data;
-
-  // needs todo smth Im done for now.
-
-    mutex_exit(&data_mtx);
+  mutex_init(&pinpoint_mtx);
 }
 
 // reading
-void loop1()
+void loop()
 {
+  mutex_enter_blocking(&reading_serial_mtx);
+
+  // int data = Serial.read();
+  // Serial.flush();
+
+  mutex_exit(&reading_serial_mtx);
+
   sleep_ms(1);
-
-  mutex_enter_blocking(&data_mtx);
-
-  goBILDA::Pose2D position = pinpoint.getPosition();
-
-  // I know this is a horrible way of handling reading, but directly sending information fast with stringfiying this is the only way I could think of.
-  positions_data[0] = position.x;
-  positions_data[1] = position.y;
-  positions_data[2] = pinpoint.getNormalizedHeading();
-
-  positions_data[3] = pinpoint.getVelocityX();
-  positions_data[4] = pinpoint.getVelocityY();
-
-  mutex_exit(&data_mtx);
 }
 
-// todo needs to convert to string.
+void loop1()
+{
+  mutex_enter_blocking(&pinpoint_mtx);
+  goBILDA::Pose2D position = pinpoint.getPosition();
+
+  float positions_data[6] = {
+      position.x,
+      position.y,
+      position.heading,
+
+      pinpoint.getVelocityX(),
+      pinpoint.getVelocityY(),
+      pinpoint.getVelocityHeading(),
+  };
+
+  mutex_exit(&pinpoint_mtx);
+
+  // converts data into a buffer of bytes.
+  size_t buffer_size = sizeof(positions_data);
+  const unsigned char *buffer = reinterpret_cast<const unsigned char *>(positions_data);
+
+  mutex_enter_blocking(&writing_serial_mtx);
+
+  // sends data and waits for it to complete.
+  Serial.write(buffer, buffer_size);
+  Serial.flush();
+
+  mutex_exit(&writing_serial_mtx);
+
+  sleep_ms(1);
+}
