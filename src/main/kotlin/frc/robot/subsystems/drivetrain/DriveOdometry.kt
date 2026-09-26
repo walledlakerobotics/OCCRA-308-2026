@@ -13,19 +13,11 @@ class DriveOdometry(portDir: String) : AutoCloseable {
     // port serial instance
     private val mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
 
-    private var mByteStream: ByteArrayInputStream =  mSerialPort.read(Float.SIZE_BYTES * 6).inputStream()
     private var mByteBuffer: ByteBuffer = ByteBuffer.allocate(0)
 
     private val mNotifier = Notifier({
-
-        var bytes = ByteArray(0)
-
-        synchronized(mByteStream) {
-            mByteStream = mSerialPort.read(Float.SIZE_BYTES * 6).inputStream()
-            bytes = mByteStream.readNBytes(Float.SIZE_BYTES)
-        }
-
         synchronized(mByteBuffer) {
+            val bytes = mSerialPort.read(Float.SIZE_BYTES * 6)
             mByteBuffer = ByteBuffer.wrap(bytes)
         }
     })
