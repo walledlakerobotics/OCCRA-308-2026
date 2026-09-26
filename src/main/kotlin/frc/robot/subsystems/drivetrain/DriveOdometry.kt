@@ -16,20 +16,17 @@ class DriveOdometry(portDir: String) : AutoCloseable {
 
     private val mNotifier = Notifier({
         synchronized(mByteBuffer) {
-            if (mSerialPort.bytesReceived <= 0) {
+            try {
+                val bytes = mSerialPort.read(Float.SIZE_BYTES * 6)
+                mByteBuffer.clear()
+                mByteBuffer.put(bytes)
+            } catch (e: Exception) {
                 mSerialPort.close()
                 mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
 
                 println("resetting")
 
-            } else {
-                try {
-                    val bytes = mSerialPort.read(Float.SIZE_BYTES * 6)
-                    mByteBuffer.clear()
-                    mByteBuffer.put(bytes)
-                } catch (e: Exception) {
-                    println("data failed to read.")
-                }
+                println("data failed to read.")
             }
         }
     })
