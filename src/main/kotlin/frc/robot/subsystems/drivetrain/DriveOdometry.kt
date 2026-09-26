@@ -11,15 +11,28 @@ import java.nio.ByteOrder
 
 class DriveOdometry(portDir: String) : AutoCloseable {
     // port serial instance
-    private val mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
-
-    private var mByteBuffer: ByteBuffer = ByteBuffer.allocate(Float.SIZE_BYTES * 6)
+    private var mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
+    private var mByteBuffer: ByteBuffer = ByteBuffer.allocate(0)
 
     private val mNotifier = Notifier({
         synchronized(mByteBuffer) {
-            val bytes = mSerialPort.read(Float.SIZE_BYTES * 6)
-            mByteBuffer.clear()
-            mByteBuffer.put(bytes)
+            try {
+                val bytes = mSerialPort.read(Float.SIZE_BYTES * 6)
+                mByteBuffer.clear()
+                mByteBuffer.put(bytes)
+            } catch (e: Exception) {
+                println("data failed to read.")
+
+                while (mSerialPort.bytesReceived >= 0) {
+                    mSerialPort.close()
+                    mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
+
+                    println("resetting")
+
+                    Thread.sleep(10)
+                }
+
+            }
         }
     })
 
