@@ -1,56 +1,76 @@
 package frc.robot.subsystems.drivetrain
 
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SerialPort
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 
 
 class DriveOdometry(portDir: String) : AutoCloseable {
-
-    // TODO: would I need to use the flush function depending on if I reading a float from the serial, also create pose2d.
-
     // port serial instance
     private val mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
 
-    // byte stream reading the bytes and returns the
-    private val mByteStream: ByteArrayInputStream
-        get() {
-            return mSerialPort.read(Float.SIZE_BYTES * 6).inputStream()
+    private var mByteStream: ByteArrayInputStream =  mSerialPort.read(Float.SIZE_BYTES * 6).inputStream()
+    private var mByteBuffer: ByteBuffer = ByteBuffer.allocate(0)
+
+    private val mNotifier = Notifier({
+
+        var bytes = ByteArray(0)
+
+        synchronized(mByteStream) {
+            mByteStream = mSerialPort.read(Float.SIZE_BYTES * 6).inputStream()
+            bytes = mByteStream.readNBytes(Float.SIZE_BYTES)
         }
 
-    // gets the buffer
-    val dataBuffer: ByteBuffer
-        get() {
-            val bytes = mByteStream.readNBytes(Float.SIZE_BYTES)
-
-            return ByteBuffer.wrap(bytes)
+        synchronized(mByteBuffer) {
+            mByteBuffer = ByteBuffer.wrap(bytes)
         }
+    })
 
-    val position: Pose2d
+    init {
+        mNotifier.startPeriodic(0.01)
+    }
+
+     val position: Pose2d
         get() {
-            val buffer = dataBuffer
+            var x = 0.0f
+            var y = 0.0f
+            var rotation = 0.0f
 
-            val x =  buffer.getFloat(0)
-            val y = buffer.getFloat(1)
-            val rotation = buffer.getFloat(2)
+            synchronized(mByteBuffer) {
+                val buffer = mByteBuffer
 
-            return Pose2d()
+                x =  buffer.getFloat(0)
+                y = buffer.getFloat(1)
+                rotation = buffer.getFloat(2)
+            }
+
+
+            return Pose2d(Translation2d(x.toDouble(), y.toDouble()), Rotation2d(rotation.toDouble()))
         }
 
     val velocity: Pose2d
         get() {
-            val buffer = dataBuffer
+            var x = 0.0f
+            var y = 0.0f
+            var rotation = 0.0f
 
-            val x = buffer.getFloat(3)
-            val y = buffer.getFloat(4)
-            val rotation = buffer.getFloat(5)
+            synchronized(mByteBuffer) {
+                val buffer = mByteBuffer
 
-            return Pose2d()
+                x =  buffer.getFloat(3)
+                y = buffer.getFloat(4)
+                rotation = buffer.getFloat(5)
+            }
+
+            return Pose2d(Translation2d(x.toDouble(), y.toDouble()), Rotation2d(rotation.toDouble()))
         }
-
 
     override fun close() {
         mSerialPort.close()
+        mNotifier.close()
     }
 }

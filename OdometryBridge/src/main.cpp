@@ -70,7 +70,8 @@ void loop1()
 
   // sends data and waits for it to complete.
   Serial.write(buffer, buffer_size);
-  Serial.flush();
+//  Serial.flush();
+
 
   mutex_exit(&writing_serial_mtx);
 
