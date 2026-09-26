@@ -23,7 +23,7 @@ class DriveOdometry(portDir: String) : AutoCloseable {
             } catch (e: Exception) {
                 println("data failed to read.")
 
-                while (mSerialPort.bytesReceived >= 0) {
+                while (mSerialPort.bytesReceived > 0) {
                     mSerialPort.close()
                     mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
 
