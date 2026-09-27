@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.kBackLeftMotorCANID
 import frc.robot.constants.kBackRightMotorCANID
-import frc.robot.constants.kDistanceFromCenter
 import frc.robot.constants.kFrontLeftMotorCANID
 import frc.robot.constants.kFrontRightMotorCANID
 import frc.robot.constants.kSparkMaxConfig
