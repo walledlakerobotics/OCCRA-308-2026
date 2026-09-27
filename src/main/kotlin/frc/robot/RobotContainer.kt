@@ -1,25 +1,34 @@
 package frc.robot
 
-import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.wpilibj2.command.Command
-import frc.robot.constants.kCoDriverController
-import frc.robot.constants.kDriverController
-import frc.robot.subsystems.drivetrain.DriveTrain
+import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import frc.robot.constants.kDriverControllerPort
+import frc.robot.subsystems.drivetrain.MecanumDrive
 
 class RobotContainer {
 
-    private val mPathChooser = AutoBuilder.buildAutoChooser()
+//    private val mPathChooser = AutoBuilder.buildAutoChooser()
 
-    public val drivetrain = DriveTrain()
+    val drivetrain = MecanumDrive()
+    val driverController = CommandXboxController(kDriverControllerPort)
 
     init {
-        kDriverController(this)
-        kCoDriverController(this)
+//        kDriverController(this)
+//        kCoDriverController(this)
+        drivetrain.defaultCommand = drivetrain.drive(
+            driverController::getLeftY,
+            driverController::getLeftX,
+            driverController::getRightX
+        )
+        
+        // drivetrain.defaultCommand = drivetrain.drive({ 0.5 }, { 0.0 }, { 0.0 })
     }
 
 
     val autonomousCommand: Command
         get() {
-           return mPathChooser.selected
+//           return mPathChooser.selected
+            return Commands.none()
         }
 }
