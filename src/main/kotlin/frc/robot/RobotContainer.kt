@@ -17,9 +17,9 @@ class RobotContainer {
 //        kDriverController(this)
 //        kCoDriverController(this)
         drivetrain.defaultCommand = drivetrain.drive(
-            driverController::getLeftY,
-            driverController::getLeftX,
-            driverController::getRightX
+            { driverController.leftX },
+            { driverController.leftY },
+            { driverController.rightX }
         )
         
         // drivetrain.defaultCommand = drivetrain.drive({ 0.5 }, { 0.0 }, { 0.0 })
