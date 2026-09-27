@@ -5,32 +5,31 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SerialPort
+import frc.robot.constants.kBufferCapacity
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 
-class DriveOdometry(portDir: String) : AutoCloseable {
+class DriveOdometry() : AutoCloseable {
     // port serial instance
-    private var mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
-    private var mByteBuffer: ByteBuffer = ByteBuffer.allocate(Float.SIZE_BYTES * 6)
+    private var mSerialPort =
+        SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
+    private var mByteBuffer: ByteBuffer = ByteBuffer.allocate(kBufferCapacity)
 
-    private val mNotifier = Notifier({
+    private val mNotifier = Notifier {
         synchronized(mByteBuffer) {
             try {
-                val bytes = mSerialPort.read(Float.SIZE_BYTES * 6)
+                val bytes = mSerialPort.read(kBufferCapacity)
                 mByteBuffer.clear()
                 mByteBuffer.put(bytes)
             } catch (e: Exception) {
                 mSerialPort.close()
-                mSerialPort = SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
 
-                println("resetting")
-
-                println("data failed to read.")
+                mSerialPort =
+                    SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
             }
         }
-    })
-
+    }
 
 
     init {
@@ -38,7 +37,7 @@ class DriveOdometry(portDir: String) : AutoCloseable {
         mNotifier.startPeriodic(0.01)
     }
 
-     val position: Pose2d
+    val position: Pose2d
         get() {
             var x = 0.0f
             var y = 0.0f
@@ -47,7 +46,7 @@ class DriveOdometry(portDir: String) : AutoCloseable {
             synchronized(mByteBuffer) {
                 val buffer = mByteBuffer
 
-                x =  buffer.getFloat(0)
+                x = buffer.getFloat(0)
                 y = buffer.getFloat(1)
                 rotation = buffer.getFloat(2)
             }
@@ -65,7 +64,7 @@ class DriveOdometry(portDir: String) : AutoCloseable {
             synchronized(mByteBuffer) {
                 val buffer = mByteBuffer
 
-                x =  buffer.getFloat(3)
+                x = buffer.getFloat(3)
                 y = buffer.getFloat(4)
                 rotation = buffer.getFloat(5)
             }

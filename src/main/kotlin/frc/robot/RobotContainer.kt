@@ -3,26 +3,23 @@ package frc.robot
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import frc.robot.constants.deadbandOutput
+import frc.robot.constants.kCoDriverControllerPort
 import frc.robot.constants.kDriverControllerPort
 import frc.robot.subsystems.drivetrain.MecanumDrive
 
 class RobotContainer {
-
-//    private val mPathChooser = AutoBuilder.buildAutoChooser()
+    val mDriverController = CommandXboxController(kDriverControllerPort)
+    val mCoDriverController = CommandXboxController(kCoDriverControllerPort)
 
     val drivetrain = MecanumDrive()
-    val driverController = CommandXboxController(kDriverControllerPort)
 
     init {
-//        kDriverController(this)
-//        kCoDriverController(this)
         drivetrain.defaultCommand = drivetrain.drive(
-            driverController::getLeftY,
-            driverController::getLeftX,
-            driverController::getRightX
+            { deadbandOutput(mDriverController.leftX) },
+            { deadbandOutput(mDriverController.leftY) },
+            { deadbandOutput(mDriverController.rightX) }
         )
-        
-        // drivetrain.defaultCommand = drivetrain.drive({ 0.5 }, { 0.0 }, { 0.0 })
     }
 
 
