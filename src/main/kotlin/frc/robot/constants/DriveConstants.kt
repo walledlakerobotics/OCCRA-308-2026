@@ -3,32 +3,50 @@ package frc.robot.constants
 import com.revrobotics.spark.config.SparkBaseConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.units.Units
-import edu.wpi.first.units.measure.Distance
-import edu.wpi.first.units.measure.LinearVelocity
+import edu.wpi.first.math.util.Units
 
-val kDistanceFromCenter: Distance = Distance.ofBaseUnits(0.0, Units.Meters)
+const val kFrontLeftMotorCANID = 2
+const val kFrontRightMotorCANID = 4
+const val kBackLeftMotorCANID = 8
+const val kBackRightMotorCANID = 6
 
-const val kFrontLeftMotorCANID = 0
-const val kFrontRightMotorCANID = 1
-const val kBackLeftMotorCANID = 2
-const val kBackRightMotorCANID = 3
-
-val kFrontLeftNeoTranslation = Translation2d();
-val kFrontRightNeoTranslation = Translation2d();
-val kBackLeftNeoTranslation = Translation2d();
-val kBackRightNeoTranslation = Translation2d();
+val kFrontLeftNeoTranslation = Translation2d(Units.inchesToMeters(10.0), Units.inchesToMeters(11.75))
+val kFrontRightNeoTranslation = Translation2d(Units.inchesToMeters(10.0), Units.inchesToMeters(-11.75))
+val kBackLeftNeoTranslation = Translation2d(Units.inchesToMeters(-10.0), Units.inchesToMeters(11.75))
+val kBackRightNeoTranslation = Translation2d(Units.inchesToMeters(-10.0), Units.inchesToMeters(-11.75))
 
 val kSparkMaxConfig: SparkMaxConfig
     get() {
         val config = SparkMaxConfig()
 
         // pid control
-        config.closedLoop.pid(1.0, 0.0, 1.0)
-        config.closedLoop.maxOutput(0.8) // the max dutycycle coming from PID
+        config.closedLoop
+            .pid(0.25, 0.0, 0.1)
+            .maxOutput(1.0) // the max duty cycle coming from PID
 
-        config.idleMode(SparkBaseConfig.IdleMode.kCoast)
-        config.smartCurrentLimit(45) // amps
+        config
+            .idleMode(SparkBaseConfig.IdleMode.kCoast)
+            .smartCurrentLimit(45) // amps
+            
+        config.encoder
+            .positionConversionFactor(Math.PI * Units.inchesToMeters(6.0) / 8.45865)
+            .velocityConversionFactor(Math.PI * Units.inchesToMeters(6.0) / 8.45865 / 60.0)
+
+        return config
+    }
+
+val kLeftConfig: SparkMaxConfig
+    get() {
+        val config = kSparkMaxConfig
+        config.inverted(true)
+
+        return config
+    }
+
+val kRightConfig: SparkMaxConfig
+    get() {
+        val config = kSparkMaxConfig
+        config.inverted(false)
 
         return config
     }
