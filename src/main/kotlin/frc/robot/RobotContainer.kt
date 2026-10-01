@@ -9,16 +9,16 @@ import frc.robot.constants.kDriverControllerPort
 import frc.robot.subsystems.drivetrain.MecanumDrive
 
 class RobotContainer {
-    val mDriverController = CommandXboxController(kDriverControllerPort)
-    val mCoDriverController = CommandXboxController(kCoDriverControllerPort)
+    val driverController = CommandXboxController(kDriverControllerPort)
+    val coDriverController = CommandXboxController(kCoDriverControllerPort)
 
     val drivetrain = MecanumDrive()
 
     init {
         drivetrain.defaultCommand = drivetrain.drive(
-            { deadbandOutput(mDriverController.leftX) },
-            { deadbandOutput(mDriverController.leftY) },
-            { deadbandOutput(mDriverController.rightX) }
+            { deadbandOutput(driverController.leftX) },
+            { deadbandOutput(driverController.leftY) },
+            { deadbandOutput(driverController.rightX) }
         )
     }
 
