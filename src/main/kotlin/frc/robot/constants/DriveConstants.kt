@@ -5,6 +5,9 @@ import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.util.Units
 
+// meters/second
+const val kSpeedFactor = 10
+
 const val kFrontLeftMotorCANID = 2
 const val kFrontRightMotorCANID = 4
 const val kBackLeftMotorCANID = 8
@@ -14,6 +17,7 @@ val kFrontLeftNeoTranslation = Translation2d(Units.inchesToMeters(10.0), Units.i
 val kFrontRightNeoTranslation = Translation2d(Units.inchesToMeters(10.0), Units.inchesToMeters(-11.75))
 val kBackLeftNeoTranslation = Translation2d(Units.inchesToMeters(-10.0), Units.inchesToMeters(11.75))
 val kBackRightNeoTranslation = Translation2d(Units.inchesToMeters(-10.0), Units.inchesToMeters(-11.75))
+
 
 val kSparkMaxConfig: SparkMaxConfig
     get() {
@@ -27,7 +31,7 @@ val kSparkMaxConfig: SparkMaxConfig
         config
             .idleMode(SparkBaseConfig.IdleMode.kCoast)
             .smartCurrentLimit(45) // amps
-            
+
         config.encoder
             .positionConversionFactor(Math.PI * Units.inchesToMeters(6.0) / 8.45865)
             .velocityConversionFactor(Math.PI * Units.inchesToMeters(6.0) / 8.45865 / 60.0)
@@ -50,3 +54,4 @@ val kRightConfig: SparkMaxConfig
 
         return config
     }
+    

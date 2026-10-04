@@ -13,10 +13,10 @@ import frc.robot.constants.*
 
 class MecanumDrive : SubsystemBase() {
 
-    private val mFrontLeftNeo = SparkMax(kFrontLeftMotorCANID, SparkLowLevel.MotorType.kBrushless)
-    private val mFrontRightNeo = SparkMax(kFrontRightMotorCANID, SparkLowLevel.MotorType.kBrushless)
-    private val mBackLeftNeo = SparkMax(kBackLeftMotorCANID, SparkLowLevel.MotorType.kBrushless)
-    private val mBackRightNeo = SparkMax(kBackRightMotorCANID, SparkLowLevel.MotorType.kBrushless)
+    private val frontLeftNeo = SparkMax(kFrontLeftMotorCANID, SparkLowLevel.MotorType.kBrushless)
+    private val frontRightNeo = SparkMax(kFrontRightMotorCANID, SparkLowLevel.MotorType.kBrushless)
+    private val backLeftNeo = SparkMax(kBackLeftMotorCANID, SparkLowLevel.MotorType.kBrushless)
+    private val backRightNeo = SparkMax(kBackRightMotorCANID, SparkLowLevel.MotorType.kBrushless)
 
     private val kinematics = MecanumDriveKinematics(
         kFrontLeftNeoTranslation,
@@ -26,10 +26,10 @@ class MecanumDrive : SubsystemBase() {
     )
 
     init {
-        mFrontLeftNeo.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
-        mFrontRightNeo.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
-        mBackLeftNeo.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
-        mBackRightNeo.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
+        frontLeftNeo.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
+        frontRightNeo.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
+        backLeftNeo.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
+        backRightNeo.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
     }
 
     fun drive(speeds: ChassisSpeeds) {
@@ -37,24 +37,19 @@ class MecanumDrive : SubsystemBase() {
         val v = kinematics.toWheelSpeeds(speeds)
 
         // sets the set point.
-        mFrontLeftNeo.closedLoopController.setSetpoint(v.frontLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
-        mFrontRightNeo.closedLoopController.setSetpoint(v.frontRightMetersPerSecond, SparkBase.ControlType.kVelocity)
-        mBackRightNeo.closedLoopController.setSetpoint(v.rearRightMetersPerSecond, SparkBase.ControlType.kVelocity)
-        mBackLeftNeo.closedLoopController.setSetpoint(v.rearLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
-        
-        // mFrontLeftNeo.set(0.5)
-        // mFrontRightNeo.set(0.5)
-        // mBackLeftNeo.set(0.5)
-        // mBackRightNeo.set(0.5)
+        frontLeftNeo.closedLoopController.setSetpoint(v.frontLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
+        frontRightNeo.closedLoopController.setSetpoint(v.frontRightMetersPerSecond, SparkBase.ControlType.kVelocity)
+        backRightNeo.closedLoopController.setSetpoint(v.rearRightMetersPerSecond, SparkBase.ControlType.kVelocity)
+        backLeftNeo.closedLoopController.setSetpoint(v.rearLeftMetersPerSecond, SparkBase.ControlType.kVelocity)
     }
 
     fun drive(x: () -> Double, y: () -> Double, theta: () -> Double): Command {
         return run {
             drive(
                 ChassisSpeeds(
-                    x() * 10,
-                    y() * 10,
-                    theta() * 10
+                    x() * kSpeedFactor,
+                    y() * kSpeedFactor,
+                    theta() * kSpeedFactor
                 )
             )
         }

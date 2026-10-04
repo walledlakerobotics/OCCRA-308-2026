@@ -12,6 +12,19 @@ mutex_t pinpoint_mtx = mutex();
 mutex_t writing_serial_mtx = mutex();
 mutex_t reading_serial_mtx = mutex();
 
+#pragma pack(push)
+struct p_data
+{
+  float position_x = 0.0;
+  float position_y = 0.0;
+  float rotation_heading = 0.0;
+
+  float velocity_x = 0.0;
+  float velocity_y = 0.0;
+  float velocity_rotation_heading = 0.0;
+};
+#pragma pack(pop)
+
 void setup()
 {
   // port
@@ -49,29 +62,29 @@ void loop1()
 {
   mutex_enter_blocking(&pinpoint_mtx);
   goBILDA::Pose2D position = pinpoint.getPosition();
+  p_data position_data = p_data();
 
-  float positions_data[6] = {
-      position.x,
-      position.y,
-      position.heading,
+  position_data.position_x = position.x;
+  position_data.position_y = position.y;
+  position_data.rotation_heading = position.heading;
 
-      pinpoint.getVelocityX(),
-      pinpoint.getVelocityY(),
-      pinpoint.getVelocityHeading(),
-  };
+  position_data.velocity_x = pinpoint.getVelocityX();
+  position_data.velocity_y = pinpoint.getVelocityY();
+  position_data.velocity_rotation_heading = pinpoint.getVelocityHeading();
 
   mutex_exit(&pinpoint_mtx);
 
   // converts data into a buffer of bytes.
-  size_t buffer_size = sizeof(positions_data);
-  const unsigned char *buffer = reinterpret_cast<const unsigned char *>(positions_data);
+
+  size_t buffer_size = sizeof(position_data);
+  u_int8_t buffer[buffer_size];
+
+  memcpy(buffer, &position_data, buffer_size);
 
   mutex_enter_blocking(&writing_serial_mtx);
 
   // sends data and waits for it to complete.
   Serial.write(buffer, buffer_size);
-//  Serial.flush();
-
 
   mutex_exit(&writing_serial_mtx);
 
