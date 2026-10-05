@@ -1,15 +1,24 @@
 package frc.robot
 
+import edu.wpi.first.hal.FRCNetComm
+import edu.wpi.first.hal.HAL
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.util.WPILibVersion
+import edu.wpi.first.wpilibj2.command.Commands
 
-class Robot : TimedRobot() {
-    private var autonomousCommand: Command? = null
-    private var robotContainer: RobotContainer? = null
-
-    override fun robotInit() {
-        robotContainer = RobotContainer()
+object Robot : TimedRobot() {
+    private var autonomousCommand = Commands.none()
+    private val robotContainer = RobotContainer()
+    
+    init {
+        HAL.report(
+            FRCNetComm.tResourceType.kResourceType_Language,
+            FRCNetComm.tInstances.kLanguage_Kotlin,
+            0,
+            WPILibVersion.Version
+        )
     }
 
     override fun robotPeriodic() {
@@ -23,8 +32,8 @@ class Robot : TimedRobot() {
     override fun disabledExit() {}
 
     override fun autonomousInit() {
-        autonomousCommand = robotContainer?.autonomousCommand
-
+        autonomousCommand = robotContainer.autonomousCommand
+        
         CommandScheduler.getInstance().schedule(autonomousCommand)
     }
 
