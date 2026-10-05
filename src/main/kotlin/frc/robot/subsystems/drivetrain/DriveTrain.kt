@@ -7,12 +7,6 @@ class DriveTrain : SubsystemBase() {
     private val driveOdometry = DriveOdometry()
     private val mecanumDrive = MecanumDrive()
 
-
-    init {
-
-
-    }
-
     fun drive(speedX: () -> Double, speedY: () -> Double, rotation: () -> Double) {
         mecanumDrive.drive(ChassisSpeeds(speedX(), speedY(), rotation()))
     }

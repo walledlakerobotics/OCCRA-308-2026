@@ -15,6 +15,7 @@ mutex_t reading_serial_mtx = mutex();
 #pragma pack(push)
 struct p_data
 {
+  const uint32_t signature = 0x7E4A7A52;
   float position_x = 0.0;
   float position_y = 0.0;
   float rotation_heading = 0.0;

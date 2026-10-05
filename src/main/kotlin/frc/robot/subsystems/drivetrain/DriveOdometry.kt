@@ -6,62 +6,101 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SerialPort
 import frc.robot.constants.kBufferCapacity
+import frc.robot.constants.kStartingFrameSignature
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.locks.ReentrantLock
 
 
 class DriveOdometry : AutoCloseable {
 
-    // TODO: need to convert c struct into kotlin struct
-
     // port serial instance
     private var serialPort =
         SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
-    private var byteBuffer: ByteBuffer = ByteBuffer.allocate(kBufferCapacity)
 
-    private val odometryData: OdometryData = OdometryData(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
+    private var byteBuffer: ByteBuffer = ByteBuffer.allocate(kBufferCapacity) // need to get the size of struct 
 
-    private val mNotifier = Notifier {
+    private var odometryData: OdometryData = OdometryData(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
+    private val odometryDataLock: ReentrantLock = ReentrantLock()
+
+    // updates in seprate thread in different intervals
+    private val notifier = Notifier {
+
         synchronized(byteBuffer) {
             try {
+                // getting data
                 val bytes = serialPort.read(kBufferCapacity)
                 byteBuffer.clear()
                 byteBuffer.put(bytes)
 
             } catch (e: Exception) {
+
+                // reassigns the port, and prevents memory leak
                 serialPort.close()
 
                 serialPort =
                     SerialPort(115200, SerialPort.Port.kUSB, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne)
             }
         }
+
+        synchronized(odometryDataLock) {
+            var signature = byteBuffer.getInt()
+
+            // offsets the buffer until it finds the starting point. 
+            while (signature != kStartingFrameSignature && byteBuffer.remaining() >= Int.SIZE_BYTES) {
+                byteBuffer.position(byteBuffer.position() + 1)
+                signature = byteBuffer.getInt()
+            }
+
+            // gets data
+            val x = byteBuffer.getFloat()
+            val y = byteBuffer.getFloat()
+            val r = byteBuffer.getFloat()
+
+            val vx = byteBuffer.getFloat()
+            val vy = byteBuffer.getFloat()
+            val vr = byteBuffer.getFloat()
+
+            odometryData = OdometryData(x, y, r, vx, vy, vr)
+        }
     }
 
     val position: Pose2d
         get() {
-            return Pose2d(
-                Translation2d(odometryData.positionX.toDouble(), odometryData.positionY.toDouble()),
-                Rotation2d(odometryData.rotationHeading.toDouble())
-            )
+            var pose: Pose2d
+
+            synchronized(odometryDataLock) {
+                pose = Pose2d(
+                    Translation2d(odometryData.positionX.toDouble(), odometryData.positionY.toDouble()),
+                    Rotation2d(odometryData.rotationHeading.toDouble())
+                )
+            }
+
+            return pose
         }
 
     val velocity: Pose2d
         get() {
-            return Pose2d(
-                Translation2d(odometryData.velocityX.toDouble(), odometryData.velocityY.toDouble()),
-                Rotation2d(odometryData.velocityRotationHeading.toDouble())
-            )
+            var pose: Pose2d
+
+            synchronized(odometryDataLock) {
+                pose = Pose2d(
+                    Translation2d(odometryData.velocityX.toDouble(), odometryData.velocityY.toDouble()),
+                    Rotation2d(odometryData.velocityRotationHeading.toDouble())
+                )
+            }
+
+            return pose
         }
 
     init {
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
-        mNotifier.startPeriodic(0.01)
+        notifier.startPeriodic(0.01)
     }
-
 
     override fun close() {
         serialPort.close()
-        mNotifier.close()
+        notifier.close()
     }
 }
 
@@ -72,4 +111,11 @@ private data class OdometryData(
     val velocityX: Float,
     val velocityY: Float,
     val velocityRotationHeading: Float
-)
+) {
+    fun sumData(): Float {
+        return positionX + positionY + rotationHeading +
+                velocityX + velocityY + velocityRotationHeading
+    }
+}
+
+
