@@ -12,6 +12,9 @@ mutex_t pinpoint_mtx = mutex();
 mutex_t writing_serial_mtx = mutex();
 mutex_t reading_serial_mtx = mutex();
 
+p_data data = p_data();
+mutex_t data_mtx = mutex();
+
 #pragma pack(push)
 struct p_data
 {
@@ -44,15 +47,25 @@ void setup()
   mutex_init(&reading_serial_mtx);
 
   mutex_init(&pinpoint_mtx);
+
+  mutex_init(&data_mtx);
 }
 
 // reading
 void loop()
 {
+  mutex_enter_blocking(&data_mtx);
+  float write_sum = data_sum(&data);
+  mutex_exit(&data_mtx);
+
   mutex_enter_blocking(&reading_serial_mtx);
 
-  // int data = Serial.read();
-  // Serial.flush();
+  float read_sum;
+  Serial.readBytes((char *)&read_sum, sizeof(read_sum));
+
+  if (read_sum != write_sum)
+  {
+  }
 
   mutex_exit(&reading_serial_mtx);
 
@@ -89,5 +102,19 @@ void loop1()
 
   mutex_exit(&writing_serial_mtx);
 
+  mutex_enter_blocking(&data_mtx);
+  data = position_data;
+  mutex_exit(&data_mtx);
+
   sleep_ms(1);
+}
+
+float data_sum(p_data *data)
+{
+  return data->position_x +
+         data->position_y +
+         data->rotation_heading +
+         data->velocity_x +
+         data->velocity_y +
+         data->velocity_rotation_heading;
 }
