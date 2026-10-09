@@ -3,14 +3,16 @@ package frc.robot.constants
 import com.revrobotics.spark.config.SparkBaseConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.units.Units
-import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import kotlin.math.PI
 
 const val kMotorCANID = 9
 
 // meters per sec
-val kSetpointIntakeVeloctiy = 1
+val kIntakeVelocity = 1.0
+
+private val kDiameter = Distance.ofBaseUnits(0.0, Units.Millimeter)
+
 
 val kIntakeMotorConfig: SparkMaxConfig
     get() {
