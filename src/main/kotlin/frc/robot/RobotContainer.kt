@@ -1,5 +1,6 @@
 package frc.robot
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
@@ -15,6 +16,7 @@ class RobotContainer {
     val drivetrain = MecanumDrive()
 
     init {
+        // config controller binds. 
         drivetrain.defaultCommand = drivetrain.drive(
             { deadbandOutput(driverController.leftX) },
             { deadbandOutput(driverController.leftY) },
@@ -25,7 +27,8 @@ class RobotContainer {
 
     val autonomousCommand: Command
         get() {
-//           return mPathChooser.selected
+            // return mPathChooser.selected
             return Commands.none()
         }
+
 }

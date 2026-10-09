@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands
 object Robot : TimedRobot() {
     private var autonomousCommand = Commands.none()
     private val robotContainer = RobotContainer()
-    
+
     init {
         HAL.report(
             FRCNetComm.tResourceType.kResourceType_Language,
@@ -33,7 +33,7 @@ object Robot : TimedRobot() {
 
     override fun autonomousInit() {
         autonomousCommand = robotContainer.autonomousCommand
-        
+
         CommandScheduler.getInstance().schedule(autonomousCommand)
     }
 

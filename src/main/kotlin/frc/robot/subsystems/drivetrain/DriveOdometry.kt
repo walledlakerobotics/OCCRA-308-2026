@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SerialPort
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import frc.robot.constants.kBufferCapacity
 import frc.robot.constants.kStartingFrameSignature
 import java.nio.ByteBuffer
@@ -13,6 +14,9 @@ import java.util.concurrent.locks.ReentrantLock
 
 
 class DriveOdometry : AutoCloseable {
+
+
+    // TODO: Need to make a sum check
 
     // port serial instance
     private var serialPort =
@@ -63,6 +67,8 @@ class DriveOdometry : AutoCloseable {
 
             odometryData = OdometryData(x, y, r, vx, vy, vr)
         }
+
+
     }
 
     val position: Pose2d
@@ -96,6 +102,33 @@ class DriveOdometry : AutoCloseable {
     init {
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
         notifier.startPeriodic(0.01)
+
+        val tab = Shuffleboard.getTab("Odometry")
+
+        tab.addDouble("X-Position") {
+            position.x
+        }
+
+        tab.addDouble("Y-Position") {
+            position.y
+        }
+
+        tab.addDouble("Rotation-Deg") {
+            position.rotation.degrees
+        }
+
+        tab.addDouble("X-Velocity") {
+            velocity.x
+        }
+
+        tab.addDouble("Y-Velocity") {
+            velocity.y
+        }
+
+        tab.addDouble("Rotation-Velocity-Deg") {
+            velocity.rotation.degrees
+        }
+
     }
 
     override fun close() {

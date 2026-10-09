@@ -31,7 +31,7 @@ class MecanumDrive : SubsystemBase() {
         backLeftNeo.configure(kLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
         backRightNeo.configure(kRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
     }
-
+    
     fun drive(speeds: ChassisSpeeds) {
         // gets kinematic velocity's
         val v = kinematics.toWheelSpeeds(speeds)

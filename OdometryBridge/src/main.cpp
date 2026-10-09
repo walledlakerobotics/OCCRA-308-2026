@@ -12,13 +12,11 @@ mutex_t pinpoint_mtx = mutex();
 mutex_t writing_serial_mtx = mutex();
 mutex_t reading_serial_mtx = mutex();
 
-p_data data = p_data();
-mutex_t data_mtx = mutex();
-
-#pragma pack(push)
+#pragma pack(push, 1)
 struct p_data
 {
-  const uint32_t signature = 0x7E4A7A52;
+  const uint starting_signature = 0x7E4A7A52;
+
   float position_x = 0.0;
   float position_y = 0.0;
   float rotation_heading = 0.0;
@@ -26,7 +24,12 @@ struct p_data
   float velocity_x = 0.0;
   float velocity_y = 0.0;
   float velocity_rotation_heading = 0.0;
+
+  float sum_check = 0.0;
+
+  const uint ending_signature = 0x1B997D5C;
 };
+
 #pragma pack(pop)
 
 void setup()
@@ -47,25 +50,12 @@ void setup()
   mutex_init(&reading_serial_mtx);
 
   mutex_init(&pinpoint_mtx);
-
-  mutex_init(&data_mtx);
 }
 
 // reading
 void loop()
 {
-  mutex_enter_blocking(&data_mtx);
-  float write_sum = data_sum(&data);
-  mutex_exit(&data_mtx);
-
   mutex_enter_blocking(&reading_serial_mtx);
-
-  float read_sum;
-  Serial.readBytes((char *)&read_sum, sizeof(read_sum));
-
-  if (read_sum != write_sum)
-  {
-  }
 
   mutex_exit(&reading_serial_mtx);
 
@@ -88,6 +78,8 @@ void loop1()
 
   mutex_exit(&pinpoint_mtx);
 
+  position_data.sum_check = data_sum(&position_data);
+
   // converts data into a buffer of bytes.
 
   size_t buffer_size = sizeof(position_data);
@@ -96,15 +88,9 @@ void loop1()
   memcpy(buffer, &position_data, buffer_size);
 
   mutex_enter_blocking(&writing_serial_mtx);
-
   // sends data and waits for it to complete.
   Serial.write(buffer, buffer_size);
-
   mutex_exit(&writing_serial_mtx);
-
-  mutex_enter_blocking(&data_mtx);
-  data = position_data;
-  mutex_exit(&data_mtx);
 
   sleep_ms(1);
 }

@@ -32,9 +32,11 @@ val kSparkMaxConfig: SparkMaxConfig
             .idleMode(SparkBaseConfig.IdleMode.kCoast)
             .smartCurrentLimit(45) // amps
 
+        val c = Math.PI * Units.inchesToMeters(6.0)
+
         config.encoder
-            .positionConversionFactor(Math.PI * Units.inchesToMeters(6.0) / 8.45865)
-            .velocityConversionFactor(Math.PI * Units.inchesToMeters(6.0) / 8.45865 / 60.0)
+            .positionConversionFactor(c / 8.45865)
+            .velocityConversionFactor(c / 8.45865 / 60.0)
 
         return config
     }
